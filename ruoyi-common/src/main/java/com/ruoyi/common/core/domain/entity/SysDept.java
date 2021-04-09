@@ -39,8 +39,6 @@ public class SysDept extends BaseEntity
     /** 联系电话 */
     private String phone;
 
-    /** 邮箱 */
-    private String email;
 
     /** 部门状态:0正常,1停用 */
     private String status;
@@ -128,17 +126,6 @@ public class SysDept extends BaseEntity
         this.phone = phone;
     }
 
-    @Email(message = "邮箱格式不正确")
-    @Size(min = 0, max = 50, message = "邮箱长度不能超过50个字符")
-    public String getEmail()
-    {
-        return email;
-    }
-
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
 
     public String getStatus()
     {
@@ -190,7 +177,6 @@ public class SysDept extends BaseEntity
             .append("orderNum", getOrderNum())
             .append("leader", getLeader())
             .append("phone", getPhone())
-            .append("email", getEmail())
             .append("status", getStatus())
             .append("delFlag", getDelFlag())
             .append("createBy", getCreateBy())

@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.WellMapper">
+     <resultMap type="Well" id="WellResult">
+         <id property="id" column="id"/>
+         <result property="order"    column="order"/>
+         <result property="wellCode" column="well_code"/>
+         <result property="name" column="name"/>
+         <result property="originCode" column="origin_code"/>
+         <result property="wellType" column="well_type"/>
+         <result property="purpose" column="purpose"/>
+         <result property="city" column="city"/>
+         <result property="district" column="district"/>
+         <result property="street" column="street"/>
+         <result property="address" column="address"/>
+         <result property="company" column="company"/>
+         <result property="contacter" column="contacter"/>
+         <result property="phone" column="phone"/>
+         <result property="digTime" column="dig_time"/>
+         <result property="abandonReason"    column="abandon_reason"/>
+         <result property="abandonTime"    column="abandon_time"/>
+         <result property="lat1"    column="lat_1"/>
+         <result property="lat2"    column="lat_2"/>
+         <result property="lat3"    column="lat_3"/>
+         <result property="gps"    column="gps"/>
+         <result property="lng1"    column="lng_1"/>
+         <result property="lng2"    column="lng_2"/>
+         <result property="lng3"    column="lng_3"/>
+         <result property="info"    column="info"/>
+         <result property="informer"    column="informer"/>
+         <result property="investigator"    column="investigator"/>
+         <result property="informTime"    column="inform_time"/>
+         <result property="remark"    column="remark"/>
+         <result property="createBy"    column="create_by"/>
+         <result property="createTime"    column="create_time"/>
+         <result property="updateBy"    column="update_by"/>
+         <result property="updateTime"    column="update_time"/>
+         <result property="isFill"    column="is_fill"/>
+         <result property="fillStartTime"    column="fill_start_time"/>
+         <result property="fillEndTime"    column="fill_end_time"/>
+         <result property="auditTime"    column="audit_time"/>
+         <result property="auditBy"    column="audit_by"/>
+         <result property="department"    column="department"/>
+         <result property="cityStr"    column="city_str"/>
+         <result property="districtStr"    column="district_str"/>
+         <result property="abandonRemark"    column="abandon_remark"/>
+         <result property="updateRemark"    column="update_remark"/>
+         <result property="status1"    column="status1"/>
+         <result property="status2"    column="status2"/>
+         <result property="status3"    column="status3"/>
+         <result property="status1Time"    column="status1_time"/>
+         <result property="status2Time"    column="status2_time"/>
+         <result property="status3Time"    column="status3_time"/>
+         <result property="dynamicUpdateTime"    column="dynamic_update_time"/>
+     </resultMap>
+
+    <sql id="selectWellVo">
+        select a.id,
+               a.order,
+               a.well_code,
+               a.name,
+               a.origin_code,
+               a.well_type,
+               a.purpose,
+               a.city,
+               a.district,
+               a.city_str,
+               a.district_str,
+               a.street,
+               a.address,
+               a.company,
+               a.contacter,
+               a.phone,
+               a.dig_time,
+               a.abandon_reason,
+               a.abandon_time,
+               a.lat_1,
+               a.lat_2,
+               a.lat_3,
+               a.gps,
+               a.lng_1,
+               a.lng_2,
+               a.lng_3,
+               a.info,
+               a.informer,
+               a.Investigator,
+               a.inform_time,
+               a.remark,
+               a.create_by,
+               a.create_time,
+               a.update_by,
+               a.update_time,
+               a.is_fill,
+               a.dynamic_update_time,
+               a.fill_start_time,
+               a.fill_end_time,
+               a.audit_time,
+               a.audit_by,
+               a.department,
+               a.status1,
+               a.status2,
+               a.status3,
+               a.abandon_remark,
+               a.update_remark
+        from t_well a
+    </sql>
+
+    <select id="selectWellList" resultMap="WellResult">
+        <include refid="selectWellVo"/>
+        left join sys_user u on a.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="wellType != null ">and well_type = #{wellType}</if>
+            <if test="purpose != null ">and purpose = #{purpose}</if>
+            <if test="company != null  and company != ''">and company like concat('%', #{company}, '%')</if>
+            <if test="city != null  and city != ''">and city = #{city}</if>
+            <if test="district != null  and district != ''">and district = #{district}</if>
+            <if test="params.beginTime != null and params.beginTime != '' and params.endTime != null and params.endTime != ''">
+                and inform_time &gt;= #{params.beginTime} and inform_time &lt;= #{params.endTime}
+            </if>
+            <if test="department != null  and department != ''">and department = #{department}</if>
+            <if test="status != null">and ${params.field} = #{status}</if>
+            <if test="params.level == 1">and a.status1 in (1,2,4)</if>
+            <if test="params.level == 2">and a.status2 in (1,2,4)</if>
+            <if test="params.level == 3">and a.status3 in (1,2,4)</if>
+            <if test="params.postId == null">and ${params.field} != 1</if>
+            <if test="params.postId == null and params.level == 1">and ${params.field} = 2</if>
+            ${params.dataScope}
+        </where>
+--         order by field(${params.field}, 4, 1, 2), a.order desc
+    </select>
+
+    <select id="selectWellById" resultMap="WellResult">
+        <include refid="selectWellVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectStatusList" resultType="Map">
+        select a.status1, count(*) as count
+        from t_well a
+        left join sys_user u on a.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            ${params.dataScope}
+        </where>
+        group by a.status1
+    </select>
+
+    <select id="countByIsFill" resultType="java.lang.Integer">
+        select count(*) as count
+        from t_well a
+        left join sys_user u on a.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            is_fill != 4
+            ${params.dataScope}
+        </where>
+    </select>
+
+
+    <update id="reportWell">
+        update t_well
+        set
+        ${filed1} = #{status1},
+        ${filed1_time} = now(),
+        ${filed2} = #{status2},
+        ${filed2_time} = now(),
+        update_by = #{updateBy},
+        update_time = now()
+        <where>
+        ${filed1} != #{status1} and ${filed2} != #{status2}
+        and id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        </where>
+    </update>
+
+    <select id="statusListByDay" resultType="java.util.Map">
+        select count(*) as count, date_format(a.create_time, '%Y-%m-%d') as data, a.status1
+        from t_well a
+        left join sys_user u on a.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            <if test="params.beginTime != null and params.beginTime != '' and params.endTime != null and params.endTime != ''">
+                a.create_time &gt;= #{params.beginTime} and a.create_time &lt;= #{params.endTime}
+            </if>
+            ${params.dataScope}
+        </where>
+        group by data, a.status1
+    </select>
+
+    <select id="selectFilledListByDay" resultType="java.util.Map">
+        select count(*) as count, date_format(a.create_time, '%Y-%m-%d') as data
+        from t_well a
+        left join sys_user u on a.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+             is_fill != 4
+             and a.update_time is not null
+            <if test="params.beginTime != null and params.beginTime != '' and params.endTime != null and params.endTime != ''">
+                a.create_time &gt;= #{params.beginTime} and a.create_time &lt;= #{params.endTime}
+            </if>
+            group by data
+        </where>
+    </select>
+
+
+
+    <update id="returnWell">
+        update t_well
+        set
+        ${filed1} = #{status1},
+        ${filed1_time} = now(),
+        update_time = now(),
+        update_by = #{updateBy}
+        where ${filed1} != #{status1}
+        and id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="countProvinceReport" resultType="java.util.Map">
+        SELECT
+        "河南省" as regionName,
+        100 as regionId,
+        count( CASE WHEN b.well_type = 1 THEN b.NAME END ) type1,
+        count( CASE WHEN b.well_type = 2 THEN b.NAME END ) type2,
+        count( CASE WHEN b.well_type = 3 THEN b.NAME END ) type3,
+        count( b.NAME ) typeTotal
+        FROM
+        t_well b
+        left join sys_user u on b.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            and b.status1 = 2
+            <if test="params.startTime != null">
+                and status1_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                and status1_time &lt;= #{params.endTime}
+            </if>
+            <if test="department != null">and b.department = #{department}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+
+
+    <select id="countProvinceUpdate" resultType="java.util.Map">
+        SELECT
+        "河南省" as regionName,
+        100 as regionId,
+        count( CASE WHEN b.is_fill = 1 THEN b.NAME END ) update1,
+        count( CASE WHEN b.is_fill = 2 THEN b.NAME END ) update2,
+        count( CASE WHEN b.is_fill = 4 THEN b.NAME END ) update3,
+        count( CASE WHEN b.is_fill in (1,2,4) THEN b.NAME END ) updateTotal
+        FROM
+        t_well b
+        left join sys_user u on b.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            and b.status1 = 2
+            <if test="params.startTime != null">
+                and dynamic_update_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                and dynamic_update_time &lt;= #{params.endTime}
+            </if>
+            <if test="department != null">and b.department = #{department}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+
+    <select id="countCityReports" resultType="java.util.Map">
+        SELECT
+        a.NAME as regionName,
+        a.region_id as regionId,
+        count( CASE WHEN b.well_type = 1 THEN b.NAME END ) type1,
+        count( CASE WHEN b.well_type = 2 THEN b.NAME END ) type2,
+        count( CASE WHEN b.well_type = 3 THEN b.NAME END ) type3,
+        count( b.NAME ) typeTotal
+        FROM
+        t_region a
+        LEFT JOIN t_well b ON a.region_id = b.city
+        left join sys_user u on b.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            a.level_id = 1
+            <if test="department != null">and b.department = #{department}</if>
+
+            <if test="params.level == 1">
+                and b.status1 = 2
+                <if test="params.startTime != null">
+                    and status1_time &gt;= #{params.startTime}
+                </if>
+                <if test="params.endTime != null">
+                    and status1_time &lt;= #{params.endTime}
+                </if>
+            </if>
+            <if test="params.level == 2">
+                and b.status2 = 2
+                <if test="params.startTime != null">
+                    and status2_time &gt;= #{params.startTime}
+                </if>
+                <if test="params.endTime != null">
+                    and status2_time &lt;= #{params.endTime}
+                </if>
+            </if>
+            ${params.dataScope}
+        </where>
+        GROUP BY
+        a.NAME,
+        a.region_id
+        ORDER BY
+        region_id;
+    </select>
+    <select id="countCityUpdates" resultType="java.util.Map">
+        SELECT
+        a.NAME as regionName,
+        a.region_id as regionId,
+        count( CASE WHEN b.is_fill = 1 THEN b.NAME END ) update1,
+        count( CASE WHEN b.is_fill = 2 THEN b.NAME END ) update2,
+        count( CASE WHEN b.is_fill = 3 THEN b.NAME END ) update3,
+        count( CASE WHEN b.is_fill in (1,2,3) THEN b.NAME END ) updateTotal
+        FROM
+        t_region a
+        LEFT JOIN t_well b ON a.region_id = b.city
+        left join sys_user u on b.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            a.level_id = 1
+            <if test="params.startTime != null ">
+                and dynamic_update_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                and dynamic_update_time &lt;= #{params.endTime}
+            </if>
+            <if test="department != null">and b.department = #{department}</if>
+            <if test="params.level == 1">
+                and b.status1 = 2
+            </if>
+            <if test="params.level == 2">
+                and b.status2 = 2
+            </if>
+            ${params.dataScope}
+        </where>
+        GROUP BY
+        a.NAME,
+        a.region_id
+        ORDER BY
+        region_id;
+    </select>
+
+    <select id="countDistrictsReports" resultType="java.util.Map">
+        SELECT
+        a.NAME as regionName,
+        a.region_id as regionId,
+        count( CASE WHEN b.well_type = 1 THEN b.NAME END ) type1,
+        count( CASE WHEN b.well_type = 2 THEN b.NAME END ) type2,
+        count( CASE WHEN b.well_type = 3 THEN b.NAME END ) type3,
+        count( b.NAME ) typeTotal
+        FROM
+        t_region a
+        LEFT JOIN t_well b ON a.region_id = b.district
+        left join sys_user u on b.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            a.level_id = 2
+            <if test="district != null">
+                and b.district = #{district}
+            </if>
+            <if test="city != null">
+                and b.city = #{city}
+            </if>
+            <if test="department != null">and b.department = #{department}</if>
+            <if test="params.level == 1">
+                and b.status1 = 2
+                <if test="params.startTime != null">
+                    and status1_time &gt;= #{params.startTime}
+                </if>
+                <if test="params.endTime != null">
+                    and status1_time &lt;= #{params.endTime}
+                </if>
+            </if>
+            <if test="params.level == 2">
+                and b.status2 = 2
+                <if test="params.startTime != null">
+                    and status2_time &gt;= #{params.startTime}
+                </if>
+                <if test="params.endTime != null">
+                    and status2_time &lt;= #{params.endTime}
+                </if>
+            </if>
+            <if test="params.level == 3">
+                and b.status3 = 2
+                <if test="params.startTime != null">
+                    and status3_time &gt;= #{params.startTime}
+                </if>
+                <if test="params.endTime != null">
+                    and status3_time &lt;= #{params.endTime}
+                </if>
+            </if>
+            ${params.dataScope}
+        </where>
+        GROUP BY
+        a.NAME,
+        a.region_id
+        ORDER BY
+        region_id;
+    </select>
+    <select id="countDistrictsUpdates" resultType="java.util.Map">
+        SELECT
+        a.NAME as regionName,
+        a.region_id as regionId,
+        count( CASE WHEN b.is_fill = 1 THEN b.NAME END ) update1,
+        count( CASE WHEN b.is_fill = 2 THEN b.NAME END ) update2,
+        count( CASE WHEN b.is_fill = 3 THEN b.NAME END ) update3,
+        count( CASE WHEN b.is_fill in (1,2,3) THEN b.NAME END ) updateTotal
+        FROM
+        t_region a
+        LEFT JOIN t_well b ON a.region_id = b.district
+        left join sys_user u on b.create_by = u.user_id
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>
+            a.level_id = 2
+            <if test="district != null">
+                and b.district = #{district}
+            </if>
+            <if test="city != null">
+                and b.city = #{city}
+            </if>
+            <if test="params.startTime != null">
+                and dynamic_update_time &gt;= #{params.startTime}
+            </if>
+            <if test="params.endTime != null">
+                and dynamic_update_time &lt;= #{params.endTime}
+            </if>
+            <if test="department != null">and b.department = #{department}</if>
+            <if test="params.level == 1">
+                and b.status1 = 2
+            </if>
+            <if test="params.level == 2">
+                and b.status2 = 2
+            </if>
+            <if test="params.level == 3">
+                and b.status3 = 2
+            </if>
+            ${params.dataScope}
+        </where>
+        GROUP BY
+        a.NAME,
+        a.region_id
+        ORDER BY
+        region_id;
+    </select>
+
+
+    <insert id="addWell" parameterType="com.ruoyi.system.domain.Well" useGeneratedKeys="true" keyProperty="id">
+        insert into t_well
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="order != null and order != ''">`order`,</if>
+            <if test="wellCode != null and wellCode != ''">well_code,</if>
+            <if test="name != null and name != ''">`name`,</if>
+            <if test="originCode != null and originCode != ''">origin_code,</if>
+            <if test="wellType != null">well_type,</if>
+            <if test="purpose != null">purpose,</if>
+            <if test="city != null and city != ''">city,</if>
+            <if test="district != null and district != ''">district,</if>
+            <if test="cityStr != null and cityStr != ''">city_str,</if>
+            <if test="districtStr != null and districtStr != ''">district_str,</if>
+            <if test="street != null and street != ''">street,</if>
+            <if test="address != null and address != ''">address,</if>
+            <if test="company != null">company,</if>
+            <if test="contacter != null">contacter,</if>
+            <if test="phone != null">phone,</if>
+            <if test="digTime != null">dig_time,</if>
+            <if test="abandonReason != null">abandon_reason,</if>
+            <if test="abandonTime != null">abandon_time,</if>
+            <if test="lat1 != null">lat_1,</if>
+            <if test="lat2 != null">lat_2,</if>
+            <if test="lat3 != null">lat_3,</if>
+            <if test="gps != null">gps,</if>
+            <if test="lng1 != null">lng_1,</if>
+            <if test="lng2 != null">lng_2,</if>
+            <if test="lng3 != null">lng_3,</if>
+            <if test="info != null">info,</if>
+            <if test="informer != null">informer,</if>
+            <if test="investigator != null">Investigator,</if>
+            <if test="informTime != null">inform_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="isFill != null">is_fill,</if>
+            <if test="fillStartTime != null">fill_start_time,</if>
+            <if test="fillEndTime != null">fill_end_time,</if>
+            <if test="auditTime != null">audit_time,</if>
+            <if test="auditBy != null">audit_by,</if>
+            <if test="department != null">department,</if>
+            <if test="status3 != null">status3,</if>
+            <if test="abandonRemark != null">abandon_remark,</if>
+            <if test="updateRemark != null">update_remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="order != null and order != ''">#{order},</if>
+            <if test="wellCode != null and wellCode != ''">#{wellCode},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="originCode != null and originCode != ''">#{originCode},</if>
+            <if test="wellType != null">#{wellType},</if>
+            <if test="purpose != null">#{purpose},</if>
+            <if test="city != null and city != ''">#{city},</if>
+            <if test="district != null and district != ''">#{district},</if>
+            <if test="cityStr != null and cityStr != ''">#{cityStr},</if>
+            <if test="districtStr != null and districtStr != ''">#{districtStr},</if>
+            <if test="street != null and street != ''">#{street},</if>
+            <if test="address != null and address != ''">#{address},</if>
+            <if test="company != null">#{company},</if>
+            <if test="contacter != null">#{contacter},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="digTime != null">#{digTime},</if>
+            <if test="abandonReason != null">#{abandonReason},</if>
+            <if test="abandonTime != null">#{abandonTime},</if>
+            <if test="lat1 != null">#{lat1},</if>
+            <if test="lat2 != null">#{lat2},</if>
+            <if test="lat3 != null">#{lat3},</if>
+            <if test="gps != null">#{gps},</if>
+            <if test="lng1 != null">#{lng1},</if>
+            <if test="lng2 != null">#{lng2},</if>
+            <if test="lng3 != null">#{lng3},</if>
+            <if test="info != null">#{info},</if>
+            <if test="informer != null">#{informer},</if>
+            <if test="investigator != null">#{investigator},</if>
+            <if test="informTime != null">#{informTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="isFill != null">#{isFill},</if>
+            <if test="fillStartTime != null">#{fillStartTime},</if>
+            <if test="fillEndTime != null">#{fillEndTime},</if>
+            <if test="auditTime != null">#{auditTime},</if>
+            <if test="auditBy != null">#{auditBy},</if>
+            <if test="department != null">#{department},</if>
+            <if test="status3 != null">#{status3},</if>
+            <if test="abandonRemark != null">#{abandonRemark},</if>
+            <if test="updateRemark != null">#{updateRemark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateWell" parameterType="Well">
+        update t_well
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="wellCode != null and wellCode != ''">well_code = #{wellCode},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="originCode != null and originCode != ''">origin_code = #{originCode},</if>
+            <if test="wellType != null">well_type = #{wellType},</if>
+            <if test="purpose != null">purpose = #{purpose},</if>
+            <if test="city != null and city != ''">city = #{city},</if>
+            <if test="district != null and district != ''">district = #{district},</if>
+            <if test="cityStr != null and cityStr != ''">city = #{city},</if>
+            <if test="districtStr != null and districtStr != ''">district = #{district},</if>
+            <if test="street != null and street != ''">street = #{street},</if>
+            <if test="address != null and address != ''">address = #{address},</if>
+            <if test="company != null">company = #{company},</if>
+            <if test="contacter != null">contacter = #{contacter},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="digTime != null">dig_time = #{digTime},</if>
+            <if test="abandonReason != null">abandon_reason = #{abandonReason},</if>
+            <if test="abandonTime != null">abandon_time = #{abandonTime},</if>
+            <if test="lat1 != null">lat_1 = #{lat1},</if>
+            <if test="lat2 != null">lat_2 = #{lat2},</if>
+            <if test="lat3 != null">lat_3 = #{lat3},</if>
+            <if test="gps != null">gps = #{gps},</if>
+            <if test="lng1 != null">lng_1 = #{lng1},</if>
+            <if test="lng2 != null">lng_2 = #{lng2},</if>
+            <if test="lng3 != null">lng_3 = #{lng3},</if>
+            <if test="info != null">info = #{info},</if>
+            <if test="informer != null">informer = #{informer},</if>
+            <if test="investigator != null">Investigator = #{investigator},</if>
+            <if test="informTime != null">inform_time = #{informTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="isFill != null">is_fill = #{isFill},</if>
+            <if test="fillStartTime != null">fill_start_time = #{fillStartTime},</if>
+            <if test="fillEndTime != null">fill_end_time = #{fillEndTime},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="auditBy != null">audit_by = #{auditBy},</if>
+            <if test="department != null">department = #{department},</if>
+            <if test="status1 != null">status1 = #{status1},</if>
+            <if test="status2 != null">status2 = #{status2},</if>
+            <if test="status3 != null">status3 = #{status3},</if>
+            <if test="status1Time != null">status1_time = #{status1Time},</if>
+            <if test="status2Time != null">status2_time = #{status2Time},</if>
+            <if test="status3Time != null">status3_time = #{status3Time},</if>
+            <if test="abandonRemark != null">abandon_remark = #{abandonRemark},</if>
+            <if test="updateRemark != null">update_remark = #{updateRemark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="dynamicUpdate" parameterType="Well">
+        update t_well
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateTime != null">dynamic_update_time = #{updateTime},</if>
+            <if test="isFill != null">is_fill = #{isFill},</if>
+            <if test="fillStartTime != null">fill_start_time = #{fillStartTime},</if>
+            <if test="fillEndTime != null">fill_end_time = #{fillEndTime},</if>
+            <if test="updateRemark != null">update_remark = #{updateRemark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+
+    <delete id="deleteById" parameterType="Long">
+        delete from t_well
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds" parameterType="string">
+        delete from t_well where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

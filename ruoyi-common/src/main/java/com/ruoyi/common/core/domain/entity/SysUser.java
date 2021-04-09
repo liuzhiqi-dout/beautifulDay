@@ -1,5 +1,6 @@
 package com.ruoyi.common.core.domain.entity;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.validation.constraints.Email;
@@ -31,6 +32,16 @@ public class SysUser extends BaseEntity
     /** 部门ID */
     @Excel(name = "部门编号", type = Type.IMPORT)
     private Long deptId;
+
+    public Long getPostId() {
+        return postId;
+    }
+
+    public void setPostId(Long postId) {
+        this.postId = postId;
+    }
+
+    private Long postId;
 
     /** 用户账号 */
     @Excel(name = "登录名称")
@@ -75,6 +86,8 @@ public class SysUser extends BaseEntity
     /** 最后登录时间 */
     @Excel(name = "最后登录时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
     private Date loginDate;
+
+    private Integer level;
 
     /** 部门对象 */
     @Excels({
@@ -300,29 +313,37 @@ public class SysUser extends BaseEntity
         this.postIds = postIds;
     }
 
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("userId", getUserId())
-            .append("deptId", getDeptId())
-            .append("userName", getUserName())
-            .append("nickName", getNickName())
-            .append("email", getEmail())
-            .append("phonenumber", getPhonenumber())
-            .append("sex", getSex())
-            .append("avatar", getAvatar())
-            .append("password", getPassword())
-            .append("salt", getSalt())
-            .append("status", getStatus())
-            .append("delFlag", getDelFlag())
-            .append("loginIp", getLoginIp())
-            .append("loginDate", getLoginDate())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .append("dept", getDept())
-            .toString();
+        return "SysUser{" +
+                "userId=" + userId +
+                ", deptId=" + deptId +
+                ", postId=" + postId +
+                ", userName='" + userName + '\'' +
+                ", nickName='" + nickName + '\'' +
+                ", email='" + email + '\'' +
+                ", phonenumber='" + phonenumber + '\'' +
+                ", sex='" + sex + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", password='" + password + '\'' +
+                ", salt='" + salt + '\'' +
+                ", status='" + status + '\'' +
+                ", delFlag='" + delFlag + '\'' +
+                ", loginIp='" + loginIp + '\'' +
+                ", loginDate=" + loginDate +
+                ", level=" + level +
+                ", dept=" + dept +
+                ", roles=" + roles +
+                ", roleIds=" + Arrays.toString(roleIds) +
+                ", postIds=" + Arrays.toString(postIds) +
+                '}';
     }
 }
